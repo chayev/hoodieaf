@@ -11,15 +11,29 @@ import (
 
 var cfgFile string
 
-var rootCmd = &cobra.Command{
-	Use:     "hoodieaf <city>",
-	Short:   "Find out if you need a hoodie or not.",
-	Version: "v0.1.0",
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println(lib.Hoodie(args[0]))
-		// lib.Hoodie(args[0])
-	},
-}
+var (
+	search string
+
+	rootCmd = &cobra.Command{
+		Use:     "hoodieaf",
+		Short:   "Find out if you need a hoodie or not.",
+		Version: "v0.1.0",
+		Run: func(cmd *cobra.Command, args []string) {
+
+			if search != "" {
+				var temp = lib.GetTemp(search)
+				fmt.Printf("Temp in %s: %d \n", search, temp)
+				if temp > 15 {
+					fmt.Println("no hoodie")
+				} else {
+					fmt.Println("hoodie")
+				}
+			} else {
+				fmt.Println("Enter `hoodieaf -h` for help.")
+			}
+		},
+	}
+)
 
 // Execute returns usage guide
 func Execute() {
@@ -31,4 +45,7 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize()
+
+	rootCmd.PersistentFlags().StringVarP(&search, "search", "s", "", "name of city you would like to check")
+
 }

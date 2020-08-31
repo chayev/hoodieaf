@@ -1,51 +1,25 @@
 package lib
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"strings"
+	"strconv"
 )
 
-var apiKey = "" // Add in apiKey from https://developer.accuweather.com/user/me/apps
-
-// Hoodie init
-func Hoodie(input string) string {
-
-	locationKey := getLocationKey(input)
-
-	fmt.Println(locationKey)
-
-	// locationKey = "1-324505_1_AL"
-
-	url := "http://dataservice.accuweather.com/currentconditions/v1/" + locationKey + "?apikey=" + apiKey
-	method := "GET"
-
-	client := &http.Client{}
-	req, err := http.NewRequest(method, url, nil)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	res, err := client.Do(req)
-	if err != nil {
-		fmt.Println(err)
-	}
-	defer res.Body.Close()
-
-	body, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	// fmt.Println(string(body))
-
-	return string(body)
+type values struct {
+	TempC string `json:"temp_C"`
 }
 
-func getLocationKey(search string) string {
+type responseData struct {
+	CurrentCondition []values `json:"current_condition"`
+}
 
-	url := "http://dataservice.accuweather.com/locations/v1/cities/search?apikey=" + apiKey + "&q=" + search
+// GetTemp given a search returns temp in C
+func GetTemp(search string) int {
+
+	url := "http://wttr.in/" + search + "?format=j1"
 	method := "GET"
 
 	client := &http.Client{}
@@ -65,8 +39,17 @@ func getLocationKey(search string) string {
 		fmt.Println(err)
 	}
 
-	output := strings.Split(strings.Split(string(body), ",")[1], ":")[1]
-	output = output[1 : len(output)-1]
+	var jsonData responseData
 
-	return output
+	err = json.Unmarshal(body, &jsonData)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	tempResult, err := strconv.Atoi(jsonData.CurrentCondition[0].TempC)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	return tempResult
 }

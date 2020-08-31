@@ -1,0 +1,13 @@
+# Binaries
+/cli/hoodieaf
+/webapp/hoodieaf-webapp
+/dist/
+
+# Snapcraft
+*.snap
+/parts/
+/prime/
+/stage/
+
+# Other
+.DS_Store
